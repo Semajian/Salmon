@@ -1,5 +1,5 @@
 package kraken.plugin.api
 
-interface Filter<T> {
+interface Filter<in T> {
     fun accept(t: T): Boolean
 }

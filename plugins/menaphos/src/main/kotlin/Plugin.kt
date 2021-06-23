@@ -1,15 +1,15 @@
 import kraken.plugin.PluginBase
 import kraken.plugin.api.*
+import shared.Filters
 import shared.StaticEntity
 import shared.enums.Action
 import shared.enums.PluginState
 import shared.enums.Skill
-import shared.filters.NpcFilter
-import shared.filters.SceneObjectFilter
+import shared.extensions.TypeCasts.toVector2i
 import utilities.Time
 
 class Plugin: PluginBase("Menaphos") {
-    private val banks = mapOf(PluginTask.Fishing to Pair(107489, 107497), PluginTask.Woodcutting to Pair(107492, 107487))
+    private val banks = mapOf(PluginTask.Fishing to Pair(107497, 107489), PluginTask.Woodcutting to Pair(107492, 107487))
     private var captureDivineBlessings = false
     private var captureSerenSpirits = false
     private val fish = setOf(40287, 40289, 40291)
@@ -24,10 +24,29 @@ class Plugin: PluginBase("Menaphos") {
     private var setupCalled = false
     private var vip = false
     private val vipBank = StaticEntity(Vector2i(3182, 2741), 107737)
+    private val vipTreeArea = Area2di(Vector2i(3180, 2747), Vector2i(3192, 2753))
 
     override fun loop() {
         if (!setupCalled) {
             setup()
+        }
+
+        val self = Players.self() ?: return
+
+        if (self.isMoving()) {
+            return
+        }
+
+        // Divine blessings/seren spirits take priority
+
+        Npcs.closest(Filters.byNpc { npc -> npc.getName() == "Divine blessing" })?.let {
+            it.interact(Action.Npc1)
+            Debug.log("Captured divine blessing")
+        }
+
+        Npcs.closest(Filters.byNpc { npc -> npc.getName() == "Seren spirit" })?.let {
+            it.interact(Action.Npc1)
+            Debug.log("Captured seren spirit")
         }
 
         when (pluginTask) {
@@ -57,21 +76,7 @@ class Plugin: PluginBase("Menaphos") {
             }
         }
 
-        // Divine blessings/seren spirits take priority
-
-        Npcs.getClosest("Divine blessing")?.let {
-            it.interact(Action.Npc1)
-            Debug.log("Captured divine blessing")
-        }
-
-        Npcs.getClosest("Seren spirit")?.let {
-            it.interact(Action.Npc1)
-            Debug.log("Captured seren spirit")
-        }
-
-        val self = Players.self() ?: return
-
-        if (self.isAnimationPlaying() || self.isMoving()) {
+        if (self.isAnimationPlaying()) {
             return
         }
 
@@ -79,10 +84,14 @@ class Plugin: PluginBase("Menaphos") {
             bank()
         }
 
-        when (pluginTask) {
-            PluginTask.Fishing -> fish()
-            PluginTask.Woodcutting -> cut()
-            else -> return
+        else {
+            if (pluginTask == PluginTask.Fishing) {
+                fish()
+            }
+
+            if (pluginTask == PluginTask.Woodcutting) {
+                cut()
+            }
         }
     }
 
@@ -121,6 +130,7 @@ class Plugin: PluginBase("Menaphos") {
     private fun bank() {
         if (pluginState != PluginState.Banking) {
             Debug.log("Inventory full, banking")
+            pluginState = PluginState.Banking
 
             if (pluginTask == PluginTask.Fishing) {
                 lastFishCount = 0
@@ -142,21 +152,40 @@ class Plugin: PluginBase("Menaphos") {
         }
 
         else {
-            SceneObjects.getClosest(banks[pluginTask]?.first ?: return)?.let {
+            val bank = banks[pluginTask] ?: return
+
+            // Fishing bank = second
+            // Fishing deposit = first
+            // Woodcutting bank = first
+            // Woodcutting deposit = second
+
+            SceneObjects.closest(Filters.bySceneObject { sceneObject -> sceneObject.getId() == bank.first })?.let {
                 if (it.getName().equals("Bank chest", true)) {
                     if (Bank.isOpen()) {
                         Bank.depositAll()
                     }
 
                     else {
-                        it.interact(Action.Object2)
+                        if (pluginTask == PluginTask.Fishing) {
+                            it.interactAlternate(Action.Object2, bank.second)
+                        }
+
+                        if (pluginTask == PluginTask.Woodcutting) {
+                            it.interact(Action.Object2)
+                        }
                     }
                 }
 
                 else {
                     // The bank chest hasn't been unlocked and a deposit box is present
 
-                    it.interactAlternate(Action.Object2, banks[pluginTask]!!.second)
+                    if (pluginTask == PluginTask.Fishing) {
+                        it.interact(Action.Object2)
+                    }
+
+                    if (pluginTask == PluginTask.Woodcutting) {
+                        it.interactAlternate(Action.Object2, bank.second)
+                    }
                 }
             }
         }
@@ -168,7 +197,7 @@ class Plugin: PluginBase("Menaphos") {
         }
 
         pluginState = PluginState.CuttingTree
-        SceneObjects.closest(SceneObjectFilter.byName("Acadia tree"))?.interact(Action.Object1)
+        SceneObjects.closest(Filters.bySceneObject { sceneObject -> sceneObject.getName() == "Acadia tree" && vip == vipTreeArea.contains(sceneObject.getGlobalPosition().toVector2i()) })?.interact(Action.Object1)
     }
 
     private fun fish() {
@@ -177,7 +206,7 @@ class Plugin: PluginBase("Menaphos") {
         }
 
         pluginState = PluginState.Fishing
-        Npcs.closest(NpcFilter.byName("Fishing spot"))?.interact(Action.Npc1)
+        Npcs.closest(Filters.byNpc { npc -> npc.getName() == "Fishing spot" })?.interact(Action.Npc1)
     }
 
     private fun setup() {

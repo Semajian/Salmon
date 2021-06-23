@@ -1,6 +1,6 @@
 package kraken.plugin.api
 
-import shared.filters.WidgetItemFilter
+import shared.Filters
 
 object Bank {
     @JvmStatic
@@ -17,6 +17,6 @@ object Bank {
     external fun withdraw(filter: Filter<WidgetItem>, option: Int)
 
     fun depositAll() {
-        deposit(WidgetItemFilter.all(), 1)
+        deposit(Filters.byWidgetItem { true }, 1)
     }
 }

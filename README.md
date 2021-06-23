@@ -12,7 +12,7 @@ An API interface and collection of plugins for the Kraken client
 
 ### Caveats
 
-- Plugins must be bundled with the Kotlin standard library (increasing the resultant jar size) as the Kraken client does not include this by default
+- Plugins must be bundled with the Kotlin standard library (increasing the resultant JAR size) as the Kraken client does not include this by default
 
 ---
 
