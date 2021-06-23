@@ -2,8 +2,8 @@ package shared.enums
 
 enum class PluginState(val text: String) {
     Banking("Banking"),
-    CuttingTree("Cutting Tree"),
+    CuttingTree("Cutting tree"),
     Fishing("Fishing"),
-    HandlingItem("Handling Item"),
+    HandlingItem("Handling item"),
     Idle("Idle")
 }

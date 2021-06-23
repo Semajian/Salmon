@@ -5,8 +5,9 @@ class Widget {
 
     external fun getChildren(): Array<Widget>?
     external fun getItem(): Item?
-    external fun getTextBinary(): ByteArray?
     external fun getType(): Int
+
+    private external fun getTextBinary(): ByteArray?
 
     fun getText(): String? {
         return String(getTextBinary() ?: return null, Charsets.US_ASCII)

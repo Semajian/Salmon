@@ -6,8 +6,9 @@ open class Entity {
     private var internal3: Long = 0
 
     external fun getGlobalPosition(): Vector3i
-    external fun getNameBinary(): ByteArray?
     external fun getScenePosition(): Vector3
+
+    private external fun getNameBinary(): ByteArray?
 
     fun getName(): String {
         return String(getNameBinary() ?: return "Unknown", Charsets.US_ASCII)

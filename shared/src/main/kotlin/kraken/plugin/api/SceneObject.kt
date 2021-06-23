@@ -11,7 +11,7 @@ class SceneObject: Entity() {
         Actions.menu(action.id, getId(), position.x, position.y, 1)
     }
 
-    fun interact(action: Action, alternateId: Int) {
+    fun interactAlternate(action: Action, alternateId: Int) {
         val position = getGlobalPosition()
         Actions.menu(action.id, alternateId, position.x, position.y, 1)
     }

@@ -11,12 +11,4 @@ object WidgetItemFilter {
             }
         }
     }
-
-    fun byId(id: Int): Filter<WidgetItem> {
-        return object: Filter<WidgetItem> {
-            override fun accept(t: WidgetItem): Boolean {
-                return t.id == id
-            }
-        }
-    }
 }
