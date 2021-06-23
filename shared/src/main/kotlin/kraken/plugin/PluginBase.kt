@@ -4,6 +4,8 @@ import kraken.plugin.api.Debug
 import kraken.plugin.api.PluginContext
 import shared.GameTick
 import shared.enums.PluginState
+import kotlin.math.roundToInt
+import kotlin.random.Random
 
 abstract class PluginBase(private val name: String) {
     var pluginState = PluginState.Idle
@@ -40,7 +42,9 @@ abstract class PluginBase(private val name: String) {
             Debug.logException(exception)
         }
 
-        return GameTick.milliseconds * 4
+
+
+        return (GameTick.milliseconds * 4 * Random.nextDouble(1.0, 2.0)).roundToInt()
     }
 
     fun onPaint() {
