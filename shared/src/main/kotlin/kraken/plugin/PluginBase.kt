@@ -3,13 +3,10 @@ package kraken.plugin
 import kraken.plugin.api.Debug
 import kraken.plugin.api.PluginContext
 import shared.GameTick
-import shared.enums.PluginState
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 abstract class PluginBase(private val name: String) {
-    var pluginState = PluginState.Idle
-
     private val startTime: Long by lazy { System.currentTimeMillis() }
 
     abstract fun loop()

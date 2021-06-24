@@ -3,8 +3,8 @@ import kraken.plugin.api.*
 import shared.Filters
 import shared.StaticEntity
 import shared.enums.Action
-import shared.enums.PluginState
 import shared.enums.Skill
+import shared.enums.Spirit
 import shared.extensions.TypeCasts.toVector2i
 import utilities.Time
 
@@ -20,6 +20,7 @@ class Plugin: PluginBase("Menaphos") {
     private var lastLogCount = 0
     private var logs = 40285
     private var logsCut = 0
+    private var pluginState = PluginState.Idle
     private var pluginTask = PluginTask.None
     private var setupCalled = false
     private var vip = false
@@ -39,13 +40,11 @@ class Plugin: PluginBase("Menaphos") {
 
         // Divine blessings/seren spirits take priority
 
-        Npcs.closest(Filters.byNpc { npc -> npc.getName() == "Divine blessing" })?.let {
-            it.interact(Action.Npc1)
+        if (captureDivineBlessings && Npcs.tryFindAndInteractSpirit(Spirit.DivineBlessing)) {
             Debug.log("Captured divine blessing")
         }
 
-        Npcs.closest(Filters.byNpc { npc -> npc.getName() == "Seren spirit" })?.let {
-            it.interact(Action.Npc1)
+        if (captureSerenSpirits && Npcs.tryFindAndInteractSpirit(Spirit.SerenSpirit)) {
             Debug.log("Captured seren spirit")
         }
 
@@ -72,7 +71,6 @@ class Plugin: PluginBase("Menaphos") {
             }
             else -> {
                 pluginState = PluginState.Idle
-                return
             }
         }
 
@@ -142,13 +140,7 @@ class Plugin: PluginBase("Menaphos") {
         }
 
         if (vip) {
-            if (Bank.isOpen()) {
-                Bank.depositAll()
-            }
-
-            else {
-                vipBank.interact(Action.Object2)
-            }
+            if (Bank.isOpen()) Bank.depositAll() else vipBank.interact(Action.Object2)
         }
 
         else {
