@@ -1,8 +1,5 @@
-import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
-
 plugins {
     kotlin("jvm") version "1.5.10"
-    id("com.github.johnrengelman.shadow") version "7.0.0"
 }
 
 repositories {
@@ -14,8 +11,8 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
-tasks.withType<ShadowJar> {
-    minimize {
-        exclude(project(":shared"))
-    }
+tasks.withType<Jar> {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from(configurations.compileClasspath.get().files.map { if (it.isDirectory) it else zipTree(it) })
+    from(sourceSets.main.get().output)
 }
