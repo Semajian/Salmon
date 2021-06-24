@@ -42,8 +42,6 @@ abstract class PluginBase(private val name: String) {
             Debug.logException(exception)
         }
 
-
-
         return (GameTick.milliseconds * 4 * Random.nextDouble(1.0, 2.0)).roundToInt()
     }
 

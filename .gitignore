@@ -14,12 +14,6 @@ build/
 
 .idea/
 
-# Jar files
-
-*.jar
-
 # Log files
 
 *.log
-
-

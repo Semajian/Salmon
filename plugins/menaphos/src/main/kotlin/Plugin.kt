@@ -154,11 +154,6 @@ class Plugin: PluginBase("Menaphos") {
         else {
             val bank = banks[pluginTask] ?: return
 
-            // Fishing bank = second
-            // Fishing deposit = first
-            // Woodcutting bank = first
-            // Woodcutting deposit = second
-
             SceneObjects.closest(Filters.bySceneObject { sceneObject -> sceneObject.getId() == bank.first })?.let {
                 if (it.getName().equals("Bank chest", true)) {
                     if (Bank.isOpen()) {
