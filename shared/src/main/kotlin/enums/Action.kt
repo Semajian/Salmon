@@ -19,5 +19,9 @@ enum class Action(val id: Int) {
     GroundItem(15),
     Dialogue(16),
     Selectable(17),
-    Select(18)
+    Select(18),
+    Object3(19),
+    Object4(20),
+    Object5(21),
+    Object6(22)
 }

@@ -5,6 +5,7 @@ import shared.enums.Action
 class Npc: Entity() {
     external fun getHealth(): Int
     external fun getId(): Int
+    external fun getInteractingIndex(): Int
     external fun getServerIndex(): Int
 
     fun interact(action: Action) {
