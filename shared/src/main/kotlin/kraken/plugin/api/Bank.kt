@@ -16,6 +16,14 @@ object Bank {
     @JvmStatic
     external fun withdraw(filter: Filter<WidgetItem>, option: Int)
 
+    fun contains(id: Int): Boolean {
+        return count(id) > 0
+    }
+
+    fun containsAny(ids: Collection<Int>): Boolean {
+        return getItems().any { item -> ids.contains(item.id) }
+    }
+
     fun depositAll() {
         deposit(Filters.byWidgetItem { true }, 1)
     }

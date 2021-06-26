@@ -12,6 +12,10 @@ object Inventory {
         return count(id) > 0
     }
 
+    fun containsAny(ids: Collection<Int>): Boolean {
+        return getItems().any { item -> ids.contains(item.id) }
+    }
+
     fun countMany(ids: Collection<Int>): Int {
         return getItems().filter { ids.contains(it.id) }.size
     }
