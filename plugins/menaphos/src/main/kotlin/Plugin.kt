@@ -134,10 +134,6 @@ class Plugin: PluginBase("Menaphos") {
         task = Task.valueOf(ImGui.intSlider("", task.ordinal, 0, Task.values().size - 1))
     }
 
-    override fun paintOverlay() {
-        return
-    }
-
     private fun bank() {
         if (state != State.Banking) {
             Debug.log("Inventory full, banking")
