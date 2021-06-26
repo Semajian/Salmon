@@ -52,14 +52,14 @@ class Plugin: PluginBase("Menaphos") {
         // Divine blessings/seren spirits take priority
 
         if (captureDivineBlessings) {
-            Npcs.closest(Filters.byNpc { npc -> npc.getName() == "Divine blessing" })?.let {
+            Npcs.closest(Filters.by { npc -> npc.getName() == "Divine blessing" })?.let {
                 Debug.log("Captured divine blessing")
                 it.interact(Action.Object1)
             }
         }
 
         if (captureSerenSpirits) {
-            Npcs.closest(Filters.byNpc { npc -> npc.getName() == "Seren spirit" })?.let {
+            Npcs.closest(Filters.by { npc -> npc.getName() == "Seren spirit" })?.let {
                 Debug.log("Captured seren spirit")
                 it.interact(Action.Object1)
             }
@@ -147,7 +147,7 @@ class Plugin: PluginBase("Menaphos") {
         else {
             val bank = banks[task] ?: return
 
-            if (SceneObjects.closest(Filters.bySceneObject { sceneObject -> sceneObject.getName() == "Bank chest" && !vipArea.contains(sceneObject.getGlobalPosition().toVector2i()) }) != null) {
+            if (SceneObjects.closest(Filters.by { sceneObject -> sceneObject.getName() == "Bank chest" && !vipArea.contains(sceneObject.getGlobalPosition().toVector2i()) }) != null) {
                 if (Bank.isOpen()) Bank.depositAllExclude(fishingBait) else bank.interactAlternate(Action.Object2)
             }
 
@@ -163,7 +163,7 @@ class Plugin: PluginBase("Menaphos") {
         }
 
         state = State.CuttingTree
-        SceneObjects.closest(Filters.bySceneObject { sceneObject -> sceneObject.getName() == "Acadia tree" && vip == vipArea.contains(sceneObject.getGlobalPosition().toVector2i()) })?.interact(Action.Object1)
+        SceneObjects.closest(Filters.by { sceneObject -> sceneObject.getName() == "Acadia tree" && vip == vipArea.contains(sceneObject.getGlobalPosition().toVector2i()) })?.interact(Action.Object1)
     }
 
     private fun fish() {
@@ -172,7 +172,7 @@ class Plugin: PluginBase("Menaphos") {
         }
 
         state = State.Fishing
-        Npcs.closest(Filters.byNpc { npc -> npc.getName() == "Fishing spot" })?.interact(Action.Npc1)
+        Npcs.closest(Filters.by { npc -> npc.getName() == "Fishing spot" })?.interact(Action.Npc1)
     }
 
     private fun setup() {

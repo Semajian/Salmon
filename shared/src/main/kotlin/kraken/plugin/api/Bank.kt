@@ -25,10 +25,10 @@ object Bank {
     }
 
     fun depositAll() {
-        deposit(Filters.byWidgetItem { true }, 1)
+        deposit(Filters.by { true }, 1)
     }
 
     fun depositAllExclude(exclude: Int) {
-        deposit(Filters.byWidgetItem { item -> item.id != exclude }, 1)
+        deposit(Filters.by { item -> item.id != exclude }, 1)
     }
 }
