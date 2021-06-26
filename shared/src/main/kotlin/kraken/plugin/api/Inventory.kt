@@ -12,8 +12,12 @@ object Inventory {
         return count(id) > 0
     }
 
-    fun count(ids: Set<Int>): Int {
+    fun countMany(ids: Collection<Int>): Int {
         return getItems().filter { ids.contains(it.id) }.size
+    }
+
+    fun isEmpty(): Boolean {
+        return getItems().isEmpty()
     }
 
     fun isFull(): Boolean {

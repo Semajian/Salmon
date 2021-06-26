@@ -19,4 +19,8 @@ object Bank {
     fun depositAll() {
         deposit(Filters.byWidgetItem { true }, 1)
     }
+
+    fun depositAllExclude(exclude: Int) {
+        deposit(Filters.byWidgetItem { item -> item.id != exclude }, 1)
+    }
 }

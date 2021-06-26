@@ -1,4 +1,4 @@
-enum class PluginState(val text: String) {
+enum class State(val text: String) {
     Banking("Banking"),
     CuttingTree("Cutting tree"),
     Fishing("Fishing"),
