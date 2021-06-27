@@ -9,7 +9,7 @@ import utilities.Time
 import kotlin.math.max
 
 class Plugin: PluginBase("Menaphos") {
-    private val banks = mapOf(Task.Fishing to StaticEntity(107497, 3217, 2623, 107489), Task.Woodcutting to StaticEntity(107487, 3172, 2705))
+    private val banks = mapOf(Task.Fishing to StaticEntity(107497, 107489, 3217, 2623), Task.Woodcutting to StaticEntity(107487, 3172, 2705))
     private var captureDivineBlessings = false
     private var captureSerenSpirits = false
     private val fish = setOf(40287, 40289, 40291)
@@ -54,14 +54,14 @@ class Plugin: PluginBase("Menaphos") {
         if (captureDivineBlessings) {
             Npcs.closest(Filters.by { npc -> npc.getName() == "Divine blessing" })?.let {
                 Debug.log("Captured divine blessing")
-                it.interact(Action.Object1)
+                it.interact(Action.Npc1)
             }
         }
 
         if (captureSerenSpirits) {
             Npcs.closest(Filters.by { npc -> npc.getName() == "Seren spirit" })?.let {
                 Debug.log("Captured seren spirit")
-                it.interact(Action.Object1)
+                it.interact(Action.Npc1)
             }
         }
 

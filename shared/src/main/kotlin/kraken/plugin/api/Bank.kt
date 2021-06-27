@@ -31,4 +31,8 @@ object Bank {
     fun depositAllExclude(exclude: Int) {
         deposit(Filters.by { item -> item.id != exclude }, 1)
     }
+
+    fun depositAllExcludeMany(exclude: Collection<Int>) {
+        deposit(Filters.by { item -> !exclude.contains(item.id) }, 1)
+    }
 }

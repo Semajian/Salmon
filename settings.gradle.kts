@@ -1,2 +1,2 @@
 rootProject.name = "salmon"
-include("plugins:menaphos", "shared")
+include("plugins:deepseafishing", "plugins:menaphos", "shared")
