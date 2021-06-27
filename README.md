@@ -6,6 +6,7 @@ An API interface and collection of plugins for the Kraken client
 
 ### Plugins
 
+- Deep Sea Fishing (jellyfish, sailfish, swarm)
 - Menaphos (fishing, woodcutting)
 
 ---
@@ -24,10 +25,16 @@ The example below demonstrates the process of defining the entry point of a new 
 package kraken.plugin
 
 import Plugin
+import kraken.plugin.api.ConVar
 import kraken.plugin.api.PluginContext
 
 object Entry {
     private val plugin: PluginBase = Plugin()
+
+    @JvmStatic
+    fun onConVarChanged(conVar: ConVar, old: Int, new: Int) {
+        plugin.onConVarChange(conVar, old, new)
+    }
 
     @JvmStatic
     fun onLoaded(context: PluginContext): Boolean {
@@ -47,6 +54,11 @@ object Entry {
     @JvmStatic
     fun onPaintOverlay() {
         plugin.onPaintOverlay()
+    }
+
+    @JvmStatic
+    fun onWidgetVisibilityChanged(id: Int, visible: Boolean) {
+        plugin.onWidgetChange(id, visible)
     }
 }
 ```
