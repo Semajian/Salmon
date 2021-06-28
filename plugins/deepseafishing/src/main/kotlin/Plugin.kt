@@ -8,7 +8,7 @@ import utilities.Time
 import kotlin.math.max
 
 class Plugin: PluginBase("Deep Sea Fishing") {
-    private val banks = mapOf(Task.Jellyfish to StaticEntity(110860, 2098, 7114),
+    private val banks = mapOf(Task.Jellyfish to StaticEntity(110857, 2117, 7121),
                               Task.Sailfish to StaticEntity(110857, 2117, 7121),
                               Task.Swarm to StaticEntity(110857, 2096, 7089))
     private var captureDivineBlessings = false
@@ -20,7 +20,6 @@ class Plugin: PluginBase("Deep Sea Fishing") {
     private var resetCounts = false
     private var setupCalled = false
     private var state = State.Idle
-    private val swarmFishingSpot = StaticEntity(4748, 0, 0)
     private var task = Task.None
 
     override fun loop() {
@@ -33,31 +32,25 @@ class Plugin: PluginBase("Deep Sea Fishing") {
             return
         }
 
-        if (resetCounts && Inventory.isEmpty()) {
-            lastFishCount = 0
-            resetCounts = false
-        }
-
         val self = Players.self() ?: return
 
         if (self.isMoving()) {
             return
         }
 
+        if (resetCounts && Inventory.isEmpty()) {
+            lastFishCount = 0
+            resetCounts = false
+        }
+
         // Divine blessings/seren spirits take priority
 
         if (captureDivineBlessings) {
-            Npcs.closest(Filters.by { npc -> npc.getName() == "Divine blessing" })?.let {
-                Debug.log("Captured divine blessing")
-                it.interact(Action.Npc1)
-            }
+            Npcs.closest(Filters.by { npc -> npc.getName() == "Divine blessing" })?.interact(Action.Npc1)
         }
 
         if (captureSerenSpirits) {
-            Npcs.closest(Filters.by { npc -> npc.getName() == "Seren spirit" })?.let {
-                Debug.log("Captured seren spirit")
-                it.interact(Action.Npc1)
-            }
+            Npcs.closest(Filters.by { npc -> npc.getName() == "Seren spirit" })?.interact(Action.Npc1)
         }
 
         // Determine how many fish have been caught since last iteration
@@ -100,32 +93,20 @@ class Plugin: PluginBase("Deep Sea Fishing") {
 
     private fun bank() {
         if (state != State.Banking) {
-            Debug.log("Inventory full, banking")
             state = State.Banking
         }
 
-        val bank = banks[task] ?: return
-
-        if (task == Task.Jellyfish) {
-            if (Bank.isOpen()) {
-                Bank.depositAll()
-                resetCounts = true
-            }
-
-            else {
-                bank.interact(Action.Object2)
-            }
-        }
-
-        else {
-            bank.interact(Action.Object2)
-            resetCounts = true
-        }
+        banks[task]?.interact(Action.Object2)
+        resetCounts = true
     }
 
     private fun fish() {
+        if (state != State.Fishing) {
+            state = State.Fishing
+        }
+
         if (state == State.Fishing && task == Task.Jellyfish) {
-            // Check if the jellyfish has turned electrifying
+            // Check if jellyfish has turned electrifying
 
             val self = Players.self() ?: return
             val interactingIndex = self.getInteractingIndex()
@@ -139,41 +120,40 @@ class Plugin: PluginBase("Deep Sea Fishing") {
             }
         }
 
-        state = State.Fishing
+        var fishingSpot: Npc? = null
 
-        when (task) {
-            Task.Jellyfish -> {
-                // Prioritise blue blubber jellyfish if possible
+        if (task == Task.Jellyfish) {
+            // Prioritise blue blubber jellyfish if possible
 
-                var fishingSpot: Npc? = null
-
-                if (Client.getSkillLevel(Skill.Fishing) >= 91) {
-                    fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Blue blubber jellyfish" })
-                }
-
-                if (fishingSpot == null) {
-                    fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Green blubber jellyfish" })
-                }
-
-                fishingSpot?.interact(Action.Npc1)
+            if (Client.getSkillLevel(Skill.Fishing) >= 91) {
+                fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Blue blubber jellyfish" })
             }
-            Task.Sailfish -> {
-                // Prioritise calm and swift sailfish if possible
 
-                var fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Calm sailfish" })
-
-                if (fishingSpot == null) {
-                    fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Swift sailfish" })
-                }
-
-                if (fishingSpot == null) {
-                    fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Sailfish" })
-                }
-
-                fishingSpot?.interact(Action.Npc1)
+            if (fishingSpot == null) {
+                fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Green blubber jellyfish" })
             }
-            Task.Swarm -> swarmFishingSpot.interact(Action.Npc1)
         }
+
+        if (task == Task.Sailfish) {
+            // Prioritise calm/swift sailfish if possible
+
+            fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Calm sailfish" })
+
+            if (fishingSpot == null) {
+                fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Swift sailfish" })
+            }
+
+            if (fishingSpot == null) {
+                fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Sailfish" })
+            }
+
+        }
+
+        if (task == Task.Swarm) {
+            fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Swarm" })
+        }
+
+        fishingSpot?.interact(Action.Npc1)
     }
 
     private fun setup() {

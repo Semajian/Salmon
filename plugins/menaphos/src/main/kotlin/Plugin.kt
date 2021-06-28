@@ -26,7 +26,7 @@ class Plugin: PluginBase("Menaphos") {
     private var state = State.Idle
     private var task = Task.None
     private var vip = false
-    private val vipArea = Area2di(Vector2i(3180, 2741), Vector2i(3192, 2755))
+    private val vipArea = Area2di(3180, 2741, 3192, 2755)
     private val vipBank = StaticEntity(107737, 3182, 2741)
 
     override fun loop() {
@@ -39,32 +39,26 @@ class Plugin: PluginBase("Menaphos") {
             return
         }
 
-        if (resetCounts && Inventory.isEmpty()) {
-            lastFishCount = 0
-            lastLogCount = 0
-            resetCounts = false
-        }
-
         val self = Players.self() ?: return
 
         if (self.isMoving()) {
             return
         }
 
+        if (resetCounts && Inventory.isEmpty()) {
+            lastFishCount = 0
+            lastLogCount = 0
+            resetCounts = false
+        }
+
         // Divine blessings/seren spirits take priority
 
         if (captureDivineBlessings) {
-            Npcs.closest(Filters.by { npc -> npc.getName() == "Divine blessing" })?.let {
-                Debug.log("Captured divine blessing")
-                it.interact(Action.Npc1)
-            }
+            Npcs.closest(Filters.by { npc -> npc.getName() == "Divine blessing" })?.interact(Action.Npc1)
         }
 
         if (captureSerenSpirits) {
-            Npcs.closest(Filters.by { npc -> npc.getName() == "Seren spirit" })?.let {
-                Debug.log("Captured seren spirit")
-                it.interact(Action.Npc1)
-            }
+            Npcs.closest(Filters.by { npc -> npc.getName() == "Seren spirit" })?.interact(Action.Npc1)
         }
 
         if (task == Task.Fishing) {
@@ -138,7 +132,6 @@ class Plugin: PluginBase("Menaphos") {
 
     private fun bank() {
         if (state != State.Banking) {
-            Debug.log("Inventory full, banking")
             state = State.Banking
         }
 
@@ -175,12 +168,18 @@ class Plugin: PluginBase("Menaphos") {
     }
 
     private fun cut() {
-        state = State.CuttingTree
+        if (state != State.CuttingTree) {
+            state = State.CuttingTree
+        }
+
         SceneObjects.closest(Filters.by { sceneObject -> sceneObject.getName() == "Acadia tree" && vip == vipArea.contains(sceneObject.getGlobalPosition().toVector2i()) })?.interact(Action.Object1)
     }
 
     private fun fish() {
-        state = State.Fishing
+        if (state != State.Fishing) {
+            state = State.Fishing
+        }
+
         Npcs.closest(Filters.by { npc -> npc.getName() == "Fishing spot" })?.interact(Action.Npc1)
     }
 
