@@ -21,6 +21,7 @@ class Plugin: PluginBase("Menaphos") {
     private var lastLogCount = 0
     private val logs = 40285
     private var logsCut = 0
+    private var resetCounts = false
     private var setupCalled = false
     private var state = State.Idle
     private var task = Task.None
@@ -38,9 +39,10 @@ class Plugin: PluginBase("Menaphos") {
             return
         }
 
-        if (Inventory.isEmpty()) {
+        if (resetCounts && Inventory.isEmpty()) {
             lastFishCount = 0
             lastLogCount = 0
+            resetCounts = false
         }
 
         val self = Players.self() ?: return
@@ -141,36 +143,43 @@ class Plugin: PluginBase("Menaphos") {
         }
 
         if (vip) {
-            if (Bank.isOpen()) Bank.depositAllExclude(fishingBait) else vipBank.interact(Action.Object2)
+            if (Bank.isOpen()) {
+                Bank.depositAllExclude(fishingBait)
+                resetCounts = true
+            }
+
+            else {
+                vipBank.interact(Action.Object2)
+            }
         }
 
         else {
             val bank = banks[task] ?: return
 
             if (SceneObjects.closest(Filters.by { sceneObject -> sceneObject.getName() == "Bank chest" && !vipArea.contains(sceneObject.getGlobalPosition().toVector2i()) }) != null) {
-                if (Bank.isOpen()) Bank.depositAllExclude(fishingBait) else bank.interactAlternate(Action.Object2)
+                if (Bank.isOpen()) {
+                    Bank.depositAllExclude(fishingBait)
+                    resetCounts = true
+                }
+
+                else {
+                    bank.interactAlternate(Action.Object2)
+                }
             }
 
             else {
-                if (task == Task.Fishing) bank.interact(Action.Object3) else bank.interact(Action.Object2)
+                bank.interact(Action.Object2)
+                resetCounts = true
             }
         }
     }
 
     private fun cut() {
-        if (state == State.CuttingTree) {
-            Debug.log("Tree depleted, finding new tree")
-        }
-
         state = State.CuttingTree
         SceneObjects.closest(Filters.by { sceneObject -> sceneObject.getName() == "Acadia tree" && vip == vipArea.contains(sceneObject.getGlobalPosition().toVector2i()) })?.interact(Action.Object1)
     }
 
     private fun fish() {
-        if (state == State.Fishing) {
-            Debug.log("Fishing spot depleted, finding new spot")
-        }
-
         state = State.Fishing
         Npcs.closest(Filters.by { npc -> npc.getName() == "Fishing spot" })?.interact(Action.Npc1)
     }

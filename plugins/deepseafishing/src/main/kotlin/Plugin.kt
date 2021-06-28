@@ -17,6 +17,7 @@ class Plugin: PluginBase("Deep Sea Fishing") {
     private var fishCaught = 0
     private var initialFishingXp = 0
     private var lastFishCount = 0
+    private var resetCounts = false
     private var setupCalled = false
     private var state = State.Idle
     private val swarmFishingSpot = StaticEntity(4748, 0, 0)
@@ -32,8 +33,9 @@ class Plugin: PluginBase("Deep Sea Fishing") {
             return
         }
 
-        if (Inventory.isEmpty()) {
+        if (resetCounts && Inventory.isEmpty()) {
             lastFishCount = 0
+            resetCounts = false
         }
 
         val self = Players.self() ?: return
@@ -105,37 +107,35 @@ class Plugin: PluginBase("Deep Sea Fishing") {
         val bank = banks[task] ?: return
 
         if (task == Task.Jellyfish) {
-            if (Bank.isOpen()) Bank.depositAll() else bank.interact(Action.Object2)
+            if (Bank.isOpen()) {
+                Bank.depositAll()
+                resetCounts = true
+            }
+
+            else {
+                bank.interact(Action.Object2)
+            }
         }
 
         else {
-            banks[task]?.interact(Action.Object3)
+            bank.interact(Action.Object2)
+            resetCounts = true
         }
     }
 
     private fun fish() {
-        if (state == State.Fishing) {
-            if (task == Task.Jellyfish) {
-                // Check if player is currently fishing and jellyfish is electrifying
+        if (state == State.Fishing && task == Task.Jellyfish) {
+            // Check if the jellyfish has turned electrifying
 
-                val self = Players.self() ?: return
-                val interactingIndex = self.getInteractingIndex()
+            val self = Players.self() ?: return
+            val interactingIndex = self.getInteractingIndex()
 
-                if (self.isAnimationPlaying() && interactingIndex != -1) {
-                    Npcs.closest(Filters.by { npc -> npc.getServerIndex() == interactingIndex })?.let {
-                        if (it.getName().contains("Electrifying", true)) {
-                            Debug.log("Jellyfish has turned electrifying, finding new spot")
-                        }
-                        else {
-                            return
-                        }
+            if (self.isAnimationPlaying() && interactingIndex != -1) {
+                Npcs.closest(Filters.by { npc -> npc.getServerIndex() == interactingIndex })?.let {
+                    if (!it.getName().startsWith("Electrifying")) {
+                        return
                     }
                 }
-            }
-
-            when (task) {
-                Task.Jellyfish, Task.Sailfish -> Debug.log("Fishing spot depleted, finding new spot")
-                Task.Swarm -> Debug.log("Net snagged, resuming fishing")
             }
         }
 
@@ -158,11 +158,9 @@ class Plugin: PluginBase("Deep Sea Fishing") {
                 fishingSpot?.interact(Action.Npc1)
             }
             Task.Sailfish -> {
-                var fishingSpot: Npc?
-
                 // Prioritise calm and swift sailfish if possible
 
-                fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Calm sailfish" })
+                var fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Calm sailfish" })
 
                 if (fishingSpot == null) {
                     fishingSpot = Npcs.closest(Filters.by { npc -> npc.getName() == "Swift sailfish" })
