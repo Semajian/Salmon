@@ -5,5 +5,6 @@ abstract class SequentialTask(val interval: Int = 1) {
 
     open fun completed(): Boolean { return true }
     open fun execute() {}
+    open fun onInterval() {}
     open fun startOn(): Boolean { return true }
 }

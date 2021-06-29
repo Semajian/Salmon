@@ -56,7 +56,7 @@ abstract class PluginBase(private val name: String) {
                 }
 
                 else {
-                    if (nextTask.completed()) sequentialTaskQueue.removeAt(0)
+                    if (nextTask.completed()) sequentialTaskQueue.removeAt(0) else nextTask.onInterval()
                 }
 
                 return nextTask.interval
