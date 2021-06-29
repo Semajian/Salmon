@@ -1,0 +1,30 @@
+package shared.enums
+
+enum class Location(val id: Int) {
+    BanditCamp(9),
+    LunarIsle(10),
+    AlKharid(11),
+    Ardougne(12),
+    Burthorpe(13),
+    Catherby(14),
+    DraynorVillage(15),
+    Edgeville(16),
+    Falador(17),
+    Lumbridge(18),
+    PortSarim(19),
+    SeersVillage(20),
+    Taverly(21),
+    Varrock(22),
+    Menaphos(23),
+    Anachronia(24),
+    Yanille(25),
+    Canifis(26),
+    EaglesPeak(27),
+    FremennikProvince(28),
+    Karamja(29),
+    Ooglog(30),
+    Tirannwn(31),
+    WildernessVolcano(32),
+    Ashdale(33),
+    Prifddinas(34)
+}

@@ -3,7 +3,7 @@ package kraken.plugin.api
 class Widget {
     private var internal1: Long = 0
 
-    external fun getChildren(): Array<Widget>?
+    external fun getChildren(): Array<Widget>
     external fun getItem(): Item?
     external fun getType(): Int
 
