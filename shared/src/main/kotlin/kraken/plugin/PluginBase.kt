@@ -4,11 +4,15 @@ import kraken.plugin.api.ConVar
 import kraken.plugin.api.Debug
 import kraken.plugin.api.PluginContext
 import shared.GameTick
+import shared.SequentialTask
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
 abstract class PluginBase(private val name: String) {
-    private val startTime: Long by lazy { System.currentTimeMillis() }
+    protected var nextLoopDelay = (GameTick.milliseconds * 4 * Random.nextDouble(1.0, 2.0)).roundToInt()
+    protected val sequentialTaskQueue = mutableListOf<SequentialTask>()
+
+    private val startTime by lazy { System.currentTimeMillis() }
 
     fun getRuntime(): Long {
         return System.currentTimeMillis() - startTime
@@ -39,14 +43,34 @@ abstract class PluginBase(private val name: String) {
 
     fun onLoop(): Int {
         try {
-            loop()
+            if (sequentialTaskQueue.isEmpty()) {
+                loop()
+            }
+
+            else {
+                val nextTask = sequentialTaskQueue[0]
+
+                if (!nextTask.executed && nextTask.startOn()) {
+                    nextTask.execute()
+                    nextTask.executed = true
+                }
+
+                else {
+                    if (nextTask.completed()) sequentialTaskQueue.removeAt(0)
+                }
+
+                return nextTask.interval
+            }
         }
 
         catch(exception: Exception) {
             Debug.logException(exception)
         }
 
-        return (GameTick.milliseconds * 4 * Random.nextDouble(1.0, 2.0)).roundToInt()
+        val delay = nextLoopDelay
+        nextLoopDelay = (GameTick.milliseconds * 4 * Random.nextDouble(1.0, 2.0)).roundToInt()
+
+        return delay
     }
 
     fun onPaint() {
